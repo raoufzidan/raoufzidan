@@ -13,6 +13,8 @@
 // The first three are started for you. The LAST one has no code — you write
 // it, and it is the one that ties the whole of Part 2 together.
 
+let itemsList = [];
+
 /**
  * Reads what is currently typed into the two boxes.
  *
@@ -24,9 +26,14 @@
  * @returns {{ name: string, price: number }}
  */
 export function readForm() {
-  // TODO: read .value off each input. Trim the name, and convert the price
-  // with Number().
-  throw new Error("readForm is not written yet");
+  const nameInput = document.querySelector("#name");
+  const priceInput = document.querySelector("#price");
+
+  const name = nameInput ? nameInput.value.trim() : "";
+  const rawPrice = priceInput ? priceInput.value.trim() : "";
+  const price = rawPrice === "" ? 0 : Number(rawPrice);
+
+  return { name, price };
 }
 
 /**
@@ -35,8 +42,11 @@ export function readForm() {
  * @returns {void}
  */
 export function clearForm() {
-  // TODO: set each input's .value to an empty string.
-  throw new Error("clearForm is not written yet");
+  const nameInput = document.querySelector("#name");
+  const priceInput = document.querySelector("#price");
+
+  if (nameInput) nameInput.value = "";
+  if (priceInput) priceInput.value = "";
 }
 
 /**
@@ -52,9 +62,26 @@ export function clearForm() {
  * @returns {void}
  */
 export function renderList(items) {
-  // TODO: empty #list first, then build one card per item — the same card
-  // shape as module 12.
-  throw new Error("renderList is not written yet");
+  const list = document.querySelector("#list");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  items.forEach((item) => {
+    const li = document.createElement("li");
+    li.classList.add("card");
+
+    const h3 = document.createElement("h3");
+    h3.textContent = item.name;
+
+    const p = document.createElement("p");
+    p.classList.add("price");
+    p.textContent = `${item.price} EGP`;
+
+    li.appendChild(h3);
+    li.appendChild(p);
+    list.appendChild(li);
+  });
 }
 
 /**
@@ -86,4 +113,31 @@ export function renderList(items) {
  * Remember `export`.
  */
 
-// TODO: write wireForm here.
+export function wireForm() {
+  const form = document.querySelector("#product-form");
+  const errorElement = document.querySelector("#error");
+
+  if (!form) return;
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const formData = readForm();
+
+    if (!formData.name) {
+      if (errorElement) errorElement.textContent = "Give the product a name.";
+      return;
+    }
+
+    if (isNaN(formData.price) || formData.price <= 0) {
+      if (errorElement) errorElement.textContent = "Give the product a price.";
+      return;
+    }
+
+    if (errorElement) errorElement.textContent = "";
+
+    itemsList.push(formData);
+    renderList(itemsList);
+    clearForm();
+  });
+}
